@@ -1152,14 +1152,13 @@ class StretchMujocoDriver(Node):
             "/scan_filtered",
             qos_profile=QoSProfile(depth=1, reliability=ReliabilityPolicy.BEST_EFFORT),
         )
+        camera_qos_profile = QoSProfile(depth=1, reliability=ReliabilityPolicy.RELIABLE)
 
         self.camera_publishers = {
             camera.name: self.create_publisher(
                 Image,
                 get_camera_topic_name(camera),
-                qos_profile=QoSProfile(
-                    depth=1, reliability=ReliabilityPolicy.BEST_EFFORT
-                ),
+                qos_profile=camera_qos_profile,
             )
             for camera in self.sim._cameras_to_use
         }
@@ -1167,9 +1166,7 @@ class StretchMujocoDriver(Node):
             camera.name: self.create_publisher(
                 CompressedImage,
                 f"{get_camera_topic_name(camera)}/compressed",
-                qos_profile=QoSProfile(
-                    depth=1, reliability=ReliabilityPolicy.BEST_EFFORT
-                ),
+                qos_profile=camera_qos_profile,
             )
             for camera in self.sim._cameras_to_use
         }
@@ -1177,9 +1174,7 @@ class StretchMujocoDriver(Node):
             camera.name: self.create_publisher(
                 PointCloud2,
                 get_camera_pointcloud_topic_name(camera),
-                qos_profile=QoSProfile(
-                    depth=1, reliability=ReliabilityPolicy.BEST_EFFORT
-                ),
+                qos_profile=camera_qos_profile,
             )
             for camera in self.sim._cameras_to_use
             if camera.is_depth
@@ -1188,9 +1183,7 @@ class StretchMujocoDriver(Node):
             camera.name: self.create_publisher(
                 CameraInfo,
                 get_camera_info_topic_name(camera),
-                qos_profile=QoSProfile(
-                    depth=1, reliability=ReliabilityPolicy.BEST_EFFORT
-                ),
+                qos_profile=camera_qos_profile,
             )
             for camera in self.sim._cameras_to_use
         }
