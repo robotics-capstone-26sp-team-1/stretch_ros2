@@ -32,6 +32,13 @@ import cv2.aruco as aruco
 import hello_helpers.fit_plane as fp
 
 
+def normalize_depth_image_to_meters(depth_image):
+    depth_image = np.asarray(depth_image)
+    if depth_image.dtype.kind in ("u", "i"):
+        return depth_image.astype(np.float32) / 1000.0
+    return depth_image.astype(np.float32)
+
+
 class ArucoMarker:
     def __init__(self, aruco_id, marker_info, show_debug_images=False):
         self.show_debug_images = show_debug_images
@@ -131,7 +138,7 @@ class ArucoMarker:
 
         # Convert the points in the cropped rectangle of the depth
         # image to 3D points in meters using the camera matrix.
-        z = depth_crop/1000.0
+        z = depth_crop
         x = ((coord_crop[1] - c_x) / f_x) * z
         y = ((coord_crop[0] - c_y) / f_y) * z
 
@@ -669,7 +676,9 @@ class DetectArucoNode(Node):
         try:
             self.rgb_image = self.cv_bridge.imgmsg_to_cv2(ros_rgb_image, 'bgr8')
             self.rgb_image_timestamp = ros_rgb_image.header.stamp
-            self.depth_image = self.cv_bridge.imgmsg_to_cv2(ros_depth_image)
+            self.depth_image = normalize_depth_image_to_meters(
+                self.cv_bridge.imgmsg_to_cv2(ros_depth_image)
+            )
             self.depth_image_timestamp = ros_depth_image.header.stamp
         except CvBridgeError as error:
             print(error)
